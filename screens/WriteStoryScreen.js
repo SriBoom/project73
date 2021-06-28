@@ -5,9 +5,9 @@ import { Header } from 'react-native-elements';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import db from '../config';
 
-export default class TransactionScreen extends React.Component {
-    constructor(){
-        super();
+export default class WriteStory extends React.Component {
+    constructor(props){
+        super(props);
         this.state={
             title:'',
             author:'',
@@ -47,7 +47,7 @@ export default class TransactionScreen extends React.Component {
             />
             <TextInput
             style={styles.inputBox}
-            placeholder="Write your title here. Ex: T01, Story"
+            placeholder="Write your title here."
             placeholderTextColor="black"
             onChangeText={title => {
                 this.setState({ title: title });
@@ -57,7 +57,7 @@ export default class TransactionScreen extends React.Component {
 
             <TextInput
             style={styles.inputBox}
-            placeholder="Write your name here. Ex: N01, Name"
+            placeholder="Write your name here."
             placeholderTextColor="black"
             onChangeText={author=>{
                 this.setState({author:author});
@@ -67,7 +67,7 @@ export default class TransactionScreen extends React.Component {
 
             <TextInput
             style={styles.inputBox}
-            placeholder="Write your story here. Ex: S01, Story"
+            placeholder="Write your story here."
             placeholderTextColor="black"
             onChangeText={story=>{
                 this.setState({story:story});

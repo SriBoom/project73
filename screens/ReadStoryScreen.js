@@ -1,123 +1,76 @@
 import React from 'react';
-import { Text, View, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView } from 'react-native-gesture-handler';
-import db from '../config';
+import { StyleSheet, Text, View ,FlatList, Alert} from 'react-native';
+import db from '../config'
 
-export default class WriteStoryScreen extends React.Component{
-    constructor(){
-        super()
-        this.state={
-          allStory:[],
-          search:''
-        }
-      }
+export default class ReadStoryScreen extends React.Component {
+  constructor(){
+    super();
+    this.state ={
+      allStories:[]
+    }
+  }
+  componentDidMount(){
+    this.retrieveStories()
+  }
 
-      retriveStories = async()=>{
-        var text = this.state.search.toUpperCase();
-        var enteredText = text.split("")
-
-            if(enteredText[0].toUpperCase()==='T'){
-                const query = await db.collection("stories").where('title','==',text).limit(10).get()
-                query.docs.map((doc)=>{
-                    this.setState({
-                    allStory: [...this.state.allStory, doc.data()]
-                })
-            })} 
-            else if(enteredText[0].toUpperCase()==='N'){
-                 const query=await db.collection('stories').where('author','==',text).limit(10).get()
-                 query.docs.map((doc)=>{
-                     this.setState({
-                         allStory:[...this.state.allStory,doc.data()]
-                     })
-            })}
-      }
-      
-      searchFilter=async()=>{
-        var enteredText = text.split("")
-
-        if(enteredText[0].toUpperCase()==='T'){
-            const query = await db.collection("stories").where('title','==',text).get()
-            query.docs.map((doc)=>{
-                this.setState({
-                allStory: [...this.state.allStory, doc.data()]
-            })
-        })} 
-        else if(enteredText[0].toUpperCase()==='N'){
-             const query=await db.collection('stories').where('author','==',text).get()
-             query.docs.map((doc)=>{
-                 this.setState({
-                     allStory:[...this.state.allStory,doc.data()]
-                 })
-        })}
-      }
-
-      componentDidMount=async()=>{
-        const query=await db.collection("stories").limit(10).get()
-        query.docs.map(()=>{
-          this.setState({
-            allStory:[],
+  retrieveStories=()=>{
+    try {
+      var allStories= []
+      var stories = db.collection("stories")
+        .get().then((querySnapshot)=> {
+          querySnapshot.forEach((doc)=> {
+              // doc.data() is never undefined for query doc snapshots
+              
+              allStories.push(doc.data())
+              console.log('this are the stories',allStories)
           })
+          this.setState({allStories})
         })
-      }
+    }
+    catch (error) {
+      Alert.alert(error, "No Stories");
+    }
+  };
 
     render(){
         return(
-            <SafeAreaView>
-            <View style={styles.container}>
-                <View style={styles.searchBar}>
-                    <TextInput 
-                         style ={styles.box}
-                         placeholder = "Search Story"
-                         onChangeText={(text)=>{this.setState({search:text})}}/>
-                    <TouchableOpacity
-                        style = {styles.searchBox}
-                        onPress={()=>{this.searchFilter(this.state.search)}}
-                    > 
-                        <Text>Search</Text>
-                    </TouchableOpacity>
-                </View>    
-                <ScrollView>
-                {this.state.allTransactions.map((stories)=>{
-                <View style={{borderBottomWidth: 2}}>
-                    <Text>{"Title: " + stories.title}</Text>
-                    <Text>{"Author: " + stories.author}</Text>
-                </View>
-                })}
-                </ScrollView>         
+            <View>
+                 <FlatList
+                    data={this.state.allStories}
+                    renderItem={({ item }) => (
+                      <View style={styles.itemContainer}>
+                        <Text>Title: {item.title}</Text>
+                    <Text>Author : {item.author}</Text>
+                      </View>
+                    )}
+                    keyExtractor={(item, index) => index.toString()}
+                    />
             </View>
-            </SafeAreaView>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-      },
-      searchBar:{
-        flexDirection:'row',
-        height:40,
-        width:'auto',
-        borderWidth:0.5,
-        alignItems:'center',
-        backgroundColor:'grey',
-    
-      },
-      box:{
-        borderWidth:2,
-        height:30,
-        width:300,
-        paddingLeft:10,
-      },
-      searchBox:{
-        borderWidth:1,
-        height:30,
-        width:50,
-        alignItems:'center',
-        justifyContent:'center',
-        backgroundColor:'green'
-      }
-})
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },item: {
+    backgroundColor: 'pink',
+    padding: 20,
+    marginVertical: 8,
+    marginHorizontal: 16,
+  },
+  title: {
+    fontSize: 32,
+  },
+   itemContainer: {
+    height: 80,
+    width:'100%',
+    borderWidth: 2,
+    borderColor: 'pink',
+    justifyContent: 'center',
+    alignSelf: 'center',
+  }
+});
